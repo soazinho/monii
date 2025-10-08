@@ -1,4 +1,4 @@
-import { createFormHook, createFormHookContexts } from '@tanstack/react-form'
+import { revalidateLogic, useForm } from '@tanstack/react-form'
 
 import { z } from 'zod'
 import { Button } from '@/components/ui/button'
@@ -6,40 +6,28 @@ import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/in
 import { LockIcon, MailIcon } from 'lucide-react'
 import { loginFn } from '@/server/auth'
 
-const { fieldContext, formContext } = createFormHookContexts()
-
-const { useAppForm } = createFormHook({
-  fieldComponents: {
-    EmailInput,
-    PasswordInput,
-  },
-  formComponents: {
-    SubmitButton,
-  },
-  fieldContext,
-  formContext,
-})
+const schema = z.object({
+  email: z.email({ message: 'Invalid email address' }),
+  password: z.string().min(6, { message: 'Password must be at least 6 characters long' }),
+});
 
 export default function LoginForm() {
-  const form = useAppForm({
+  const form = useForm({
     defaultValues: {
       email: '',
       password: '',
     },
+    validationLogic: revalidateLogic(),
     validators: {
-      onChange: z.object({
-        email: z.email({ message: 'Invalid email address' }),
-        password: z.string().min(6, { message: 'Password must be at least 6 characters long' }),
-      }),
+      onDynamic: schema,
     },
-    onSubmit: async (data) => {
-      alert(JSON.stringify(data, null, 2))
-      console.log('Submitting', data.value);
+    onSubmit: async ({ value }) => {
+      console.log('Submitting', value);
       try {
         await loginFn({
           data: {
-            email: data.value.email,
-            password: data.value.password,
+            email: value.email,
+            password: value.password,
           },
         })
       } catch (err) {
@@ -53,54 +41,62 @@ export default function LoginForm() {
       className="space-y-4"
       onSubmit={(e) => {
         e.preventDefault()
+        e.stopPropagation()
         form.handleSubmit()
       }}
     >
       <h1 className='text-2xl font-bold'>Login</h1>
       <div className='flex flex-col gap-4'>
-        <form.AppField
+        <form.Field
           name="email"
-          children={(field) => <field.EmailInput />}
+          children={(field) => {
+            return (
+              <InputGroup>
+                <InputGroupInput 
+                  id={field.name}
+                  name={field.name}
+                  value={field.state.value}
+                  onBlur={field.handleBlur}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  type='email'
+                />
+                <InputGroupAddon>
+                  <MailIcon />
+                </InputGroupAddon>
+              </InputGroup>
+            )
+          }}
         />
-        <form.AppField
+        <form.Field
           name="password"
-          children={(field) => <field.PasswordInput />}
+          children={(field) => {
+            return (
+              <InputGroup>
+                <InputGroupInput 
+                  id={field.name}
+                  name={field.name}
+                  value={field.state.value}
+                  onBlur={field.handleBlur}
+                  onChange={(e) => field.handleChange(e.target.value)}
+                  type='password'
+                />
+                <InputGroupAddon>
+                  <LockIcon />
+                </InputGroupAddon>
+              </InputGroup>
+            )
+          }}
         />
 
-        <form.AppForm>
-          <form.SubmitButton />
-        </form.AppForm>
+        <form.Subscribe
+          selector={(state) => [state.canSubmit, state.isSubmitting]}
+          children={([canSubmit, isSubmitting]) => (
+            <button type="submit" disabled={!canSubmit}>
+              {isSubmitting ? '...' : 'Login'}
+            </button>
+          )}
+        />
       </div>
     </form>
   )
-}
-
-export function EmailInput() {
-  return (
-    <div className="grid w-sm gap-6">
-      <InputGroup>
-        <InputGroupInput type="email" placeholder="Enter your email" />
-        <InputGroupAddon>
-          <MailIcon />
-        </InputGroupAddon>
-      </InputGroup>
-    </div>
-  )
-}
-
-export function PasswordInput() {
-  return (
-    <div className="grid w-sm gap-6">
-      <InputGroup>
-        <InputGroupInput type="password" placeholder="Enter your password" />
-        <InputGroupAddon>
-          <LockIcon />
-        </InputGroupAddon>
-      </InputGroup>
-    </div>
-  )
-}
-
-export function SubmitButton() {
-  return <Button className="cursor-pointer" type="submit">Login</Button>;
 }

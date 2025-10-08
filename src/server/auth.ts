@@ -40,6 +40,8 @@ export const loginFn = createServerFn({ method: 'POST' })
     //   return { error: 'Invalid credentials' }
     // }
 
+    console.log('User logged in:', data.email)  
+
     const session = await useAppSession()
     await session.update({
       email: "bob@email.com",

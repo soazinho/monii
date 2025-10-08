@@ -7,10 +7,11 @@ type SessionData = {
 export function useAppSession() {
   return useSession<SessionData>({
     name: 'monii-session',
-    password: process.env.SESSION_SECRET!,
+    // password: process.env.SESSION_SECRET!,
+    password: "miaidwqdwqwddwqdwqwdqdwdqwdqwddqwdwqdwqdqwqwddqqwddwqdqwwdqdw", // TODO: use env var
     cookie: {
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      // sameSite: 'lax',
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60,
     },
