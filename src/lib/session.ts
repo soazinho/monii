@@ -11,7 +11,7 @@ export function useAppSession() {
     password: "miaidwqdwqwddwqdwqwdqdwdqwdqwddqwdwqdwqdqwqwddqqwddwqdqwwdqdw", // TODO: use env var
     cookie: {
       secure: process.env.NODE_ENV === 'production',
-      // sameSite: 'lax',
+      sameSite: 'lax',
       httpOnly: true,
       maxAge: 7 * 24 * 60 * 60,
     },
