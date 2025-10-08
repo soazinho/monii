@@ -1,10 +1,10 @@
 import { revalidateLogic, useForm } from '@tanstack/react-form'
 
 import { z } from 'zod'
-import { Button } from '@/components/ui/button'
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group'
 import { LockIcon, MailIcon } from 'lucide-react'
 import { loginFn } from '@/server/auth'
+import { Button } from '@/components/ui/button'
 
 const schema = z.object({
   email: z.email({ message: 'Invalid email address' }),
@@ -91,9 +91,9 @@ export default function LoginForm() {
         <form.Subscribe
           selector={(state) => [state.canSubmit, state.isSubmitting]}
           children={([canSubmit, isSubmitting]) => (
-            <button type="submit" disabled={!canSubmit}>
+            <Button type="submit" disabled={!canSubmit}>
               {isSubmitting ? '...' : 'Login'}
-            </button>
+            </Button>
           )}
         />
       </div>
