@@ -26,9 +26,9 @@ export const registerFn = createServerFn({ method: 'POST' })
     // })
 
     const session = await useAppSession()
-    await session.update({ email: "bob@email.com" })
+    await session.update({ email: "bob@example.com" })
 
-    return { success: true, user: { id: "123", email: "bob@email.com" } }
+    return { success: true, user: { id: "123", email: "bob@example.com" } }
   })
 
 export const loginFn = createServerFn({ method: 'POST' })
@@ -40,11 +40,9 @@ export const loginFn = createServerFn({ method: 'POST' })
     //   return { error: 'Invalid credentials' }
     // }
 
-    console.log('User logged in:', data.email)  
-
     const session = await useAppSession()
     await session.update({
-      email: "bob@email.com",
+      email: "bob@example.com",
     })
 
     throw redirect({ to: '/dashboard' })
@@ -67,7 +65,7 @@ export const getCurrentUserFn = createServerFn({ method: 'GET' }).handler(
     }
 
     // return await getUserByEmail(email)
-    return { id: "123", email: email }
+    return await Promise.resolve({ id: "123", email: "bob@example.com" });
   },
 )
 
