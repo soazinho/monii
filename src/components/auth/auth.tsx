@@ -1,11 +1,8 @@
-import { getCurrentUserFn } from '@/routes/_authed'
-import { useServerFn } from '@tanstack/react-start'
 import { createContext, ReactNode, useContext } from 'react'
 
 type User = {
   id: string
   email: string
-  role: string
 }
 
 type AuthContextType = {
@@ -17,10 +14,12 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const { data: user, isLoading, refetch } = useServerFn(getCurrentUserFn)
+  // const { data: user, isLoading, refetch } = useServerFn(getCurrentUserFn)
+
+  const aUser = { id: "123", email: "bob@email.com" }
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, refetch }}>
+    <AuthContext.Provider value={{ user: aUser, isLoading: true, refetch: () => {} }}>
       {children}
     </AuthContext.Provider>
   )
