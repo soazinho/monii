@@ -1,11 +1,12 @@
 import { createContext, ReactNode, useContext } from 'react'
 
-type User = {
+interface User {
   id: string
   email: string
+  hashedPassword: string
 }
 
-type AuthContextType = {
+interface AuthContextType {
   user: User | null
   isLoading: boolean
   refetch: () => void
@@ -14,12 +15,10 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  // const { data: user, isLoading, refetch } = useServerFn(getCurrentUserFn)
-
-  const aUser = { id: "123", email: "bob@email.com" }
+  // const getCurrentUser = useServerFn(getCurrentUserFn)
 
   return (
-    <AuthContext.Provider value={{ user: aUser, isLoading: true, refetch: () => {} }}>
+    <AuthContext.Provider value={{ user: { id: '', email: '', hashedPassword: '' }, isLoading: false, refetch: () => {}}}>
       {children}
     </AuthContext.Provider>
   )
