@@ -1,7 +1,6 @@
 import { useSession } from '@tanstack/react-start/server'
 
 type SessionData = {
-  userId?: string
   email?: string
 }
 
