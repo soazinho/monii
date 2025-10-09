@@ -1,10 +1,13 @@
 import { Button } from '@/components/ui/button';
-import { InputGroup, InputGroupInput, InputGroupAddon } from '@/components/ui/input-group';
-import { loginFn, registerFn } from '@/server/auth'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Field, FieldGroup, FieldLabel } from '@/components/ui/field';
+import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
+import { registerFn } from '@/server/auth'
 import { revalidateLogic, useForm } from '@tanstack/react-form';
 import { createFileRoute } from '@tanstack/react-router'
 import { useServerFn } from '@tanstack/react-start'
-import { MailIcon, LockIcon, UserIcon } from 'lucide-react';
+import { GalleryVerticalEnd } from 'lucide-react';
 import { z } from 'zod';
 
 export const Route = createFileRoute('/register')({
@@ -42,88 +45,103 @@ function Register() {
   })
 
   return (
-    <div className='flex items-center justify-center h-full'>
-      <form
-        className="space-y-4"
-        onSubmit={(e) => {
-          e.preventDefault()
-          e.stopPropagation()
-          form.handleSubmit()
-        }}
-      >
-        <h1 className='text-2xl font-bold'>Register</h1>
-        <div className='flex flex-col gap-4'>
-            <form.Field
-                name="name"
-                children={(field) => {
-                return (
-                    <InputGroup>
-                    <InputGroupInput 
-                        id={field.name}
-                        name={field.name}
-                        value={field.state.value}
-                        onBlur={field.handleBlur}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        type='text'
-                    />
-                    <InputGroupAddon>
-                        <UserIcon />
-                    </InputGroupAddon>
-                    </InputGroup>
-                )
+    <div className="bg-muted flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
+      <div className="flex w-full max-w-sm flex-col gap-6">
+        <a href="#" className="flex items-center gap-2 self-center font-medium">
+          <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
+            <GalleryVerticalEnd className="size-4" />
+          </div>
+          monii
+        </a>
+        <div className={cn("flex flex-col gap-6")}>
+          <Card>
+            <CardHeader className="text-center">
+              <CardTitle className="text-xl">Welcome</CardTitle>
+              <CardDescription>
+                Register now to get started.
+              </CardDescription>
+            </CardHeader>
+            
+            <CardContent>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  form.handleSubmit()
                 }}
-            />
-            <form.Field
-                name="email"
-                children={(field) => {
-                return (
-                    <InputGroup>
-                    <InputGroupInput 
-                        id={field.name}
-                        name={field.name}
-                        value={field.state.value}
-                        onBlur={field.handleBlur}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        type='email'
-                    />
-                    <InputGroupAddon>
-                        <MailIcon />
-                    </InputGroupAddon>
-                    </InputGroup>
-                )
-                }}
-            />
-            <form.Field
-                name="password"
-                children={(field) => {
-                return (
-                    <InputGroup>
-                    <InputGroupInput 
-                        id={field.name}
-                        name={field.name}
-                        value={field.state.value}
-                        onBlur={field.handleBlur}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        type='password'
-                    />
-                    <InputGroupAddon>
-                        <LockIcon />
-                    </InputGroupAddon>
-                    </InputGroup>
-                )
-                }}
-            />
-
-            <form.Subscribe
-                selector={(state) => [state.canSubmit, state.isSubmitting]}
-                children={([canSubmit, isSubmitting]) => (
-                <Button type="submit" disabled={!canSubmit}>
-                    {isSubmitting ? '...' : 'Login'}
-                </Button>
-                )}
-            />
+              >
+                <FieldGroup>
+                  <form.Field
+                    name="name"
+                    children={(field) => {
+                      return (
+                        <Field>
+                          <FieldLabel htmlFor="name">Name</FieldLabel>
+                          <Input
+                            id="name"
+                            name={field.name}
+                            value={field.state.value}
+                            onBlur={field.handleBlur}
+                            onChange={(e) => field.handleChange(e.target.value)}
+                            type="text"
+                            placeholder="Jane Doe"
+                            required
+                          />
+                        </Field>
+                      )
+                    }}
+                  />
+                  <form.Field
+                    name="email"
+                    children={(field) => {
+                      return (
+                        <Field>
+                          <FieldLabel htmlFor="email">Email</FieldLabel>
+                          <Input
+                            id="email"
+                            name={field.name}
+                            value={field.state.value}
+                            onBlur={field.handleBlur}
+                            onChange={(e) => field.handleChange(e.target.value)}
+                            type="email"
+                            placeholder="jane.doe@example.com"
+                            required
+                          />
+                        </Field>
+                      )
+                    }}
+                  />
+                  <form.Field
+                    name="password"
+                    children={(field) => {
+                      return (
+                        <Field>
+                          <FieldLabel htmlFor="password">Password</FieldLabel>
+                          <Input
+                            id="password"
+                            name={field.name}
+                            value={field.state.value}
+                            onBlur={field.handleBlur}
+                            onChange={(e) => field.handleChange(e.target.value)}
+                            type="password"
+                            placeholder="••••••••••••••"
+                            required
+                          />
+                        </Field>
+                      )
+                    }}
+                  />
+                  <Field>
+                    <Button type="submit" >
+                      {'Register'}
+                    </Button>
+                  </Field>
+                </FieldGroup>
+              </form>
+            </CardContent>
+          </Card>
         </div>
-      </form>
-    </div>  
+      </div>
+    </div>
   )
 }

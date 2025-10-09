@@ -9,12 +9,12 @@ import { users } from '@/db/schema';
 const registerSchema = z.object({
   name: z.string().min(2).max(100),
   email: z.email().max(255),
-  password: z.string().min(8).max(100),
+  password: z.string().min(6).max(100),
 })
-
+  
 const loginSchema = z.object({
   email: z.email().max(255),
-  password: z.string().min(8).max(100),
+  password: z.string().min(6).max(100),
 })
 
 export const registerFn = createServerFn({ method: 'POST' })
@@ -38,7 +38,7 @@ export const registerFn = createServerFn({ method: 'POST' })
     const session = await useAppSession()
     await session.update({ email: data.email })
 
-    return { success: true }
+    throw redirect({ to: '/login' })
   })
 
 export const loginFn = createServerFn({ method: 'POST' })
