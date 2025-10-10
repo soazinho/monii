@@ -1,4 +1,3 @@
-// routes/_authed.tsx - Layout route for protected pages
 import { getCurrentUserFn } from '@/server/auth'
 import { createFileRoute, redirect } from '@tanstack/react-router'
 
@@ -13,7 +12,6 @@ export const Route = createFileRoute('/_authed')({
       })
     }
 
-    // Pass user to child routes
     return { user }
   },
 })
