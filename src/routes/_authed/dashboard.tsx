@@ -5,14 +5,18 @@ import {
   SidebarInset,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { logoutFn } from "@/server/auth";
 import { Separator } from "@radix-ui/react-separator";
 import { createFileRoute } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 
 export const Route = createFileRoute("/_authed/dashboard")({
   component: DashboardComponent,
 });
 
 function DashboardComponent() {
+  const logout = useServerFn(logoutFn);
+
   const { user } = Route.useRouteContext();
 
   // TODO: Data to domain user
@@ -23,7 +27,7 @@ function DashboardComponent() {
 
   return (
     <SidebarProvider>
-      <AppSidebar user={userCopy} />
+      <AppSidebar user={userCopy} logout={logout} />
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
           <div className="flex items-center gap-2 px-4">

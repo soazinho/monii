@@ -27,10 +27,13 @@ import { User } from "./auth/auth";
 
 interface Props {
   user: User;
+  logout: () => Promise<void>;
 }
 
-export function NavUser({ user }: Props) {
+export function NavUser({ user, logout }: Props) {
   const { isMobile } = useSidebar();
+
+  const logoutUser = async () => await logout();
 
   return (
     <SidebarMenu>
@@ -78,7 +81,7 @@ export function NavUser({ user }: Props) {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
+              <DropdownMenuItem disabled>
                 <Sparkles />
                 Upgrade to Pro
               </DropdownMenuItem>
@@ -89,17 +92,17 @@ export function NavUser({ user }: Props) {
                 <BadgeCheck />
                 Account
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem disabled>
                 <CreditCard />
                 Billing
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem disabled>
                 <Bell />
                 Notifications
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={logoutUser}>
               <LogOut />
               Log out
             </DropdownMenuItem>

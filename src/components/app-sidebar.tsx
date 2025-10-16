@@ -27,9 +27,9 @@ import { User } from "./auth/auth";
 const data = {
   teams: [
     {
-      name: "Enfant-Jésus",
+      name: "Personal",
       logo: GalleryVerticalEnd,
-      plan: "Hospital",
+      plan: "Enterprise",
     },
     {
       name: "Acme Corp.",
@@ -150,9 +150,10 @@ const data = {
 
 interface Props extends React.ComponentProps<typeof Sidebar> {
   user: User;
+  logout: () => Promise<void>;
 }
 
-export function AppSidebar({ user, ...props }: Props) {
+export function AppSidebar({ user, logout, ...props }: Props) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
@@ -163,7 +164,7 @@ export function AppSidebar({ user, ...props }: Props) {
         {/*<NavProjects projects={data.other} />*/}
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={user} />
+        <NavUser user={user} logout={logout} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
