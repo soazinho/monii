@@ -1,6 +1,3 @@
-"use client"
-
-import * as React from "react"
 import {
   AudioWaveform,
   BookOpen,
@@ -12,32 +9,27 @@ import {
   PieChart,
   Settings2,
   SquareTerminal,
-} from "lucide-react"
+} from "lucide-react";
 
-import { NavMain } from "@/components/nav-main"
-import { NavProjects } from "@/components/nav-projects"
-import { NavUser } from "@/components/nav-user"
-import { TeamSwitcher } from "@/components/team-switcher"
+import { NavTeam } from "@/components/nav-main";
+import { NavUser } from "@/components/nav-user";
+import { TeamSwitcher } from "@/components/team-switcher";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
   SidebarRail,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
+import { User } from "./auth/auth";
 
 // This is sample data.
 const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
   teams: [
     {
-      name: "Acme Inc",
+      name: "Enfant-Jésus",
       logo: GalleryVerticalEnd,
-      plan: "Enterprise",
+      plan: "Hospital",
     },
     {
       name: "Acme Corp.",
@@ -50,10 +42,10 @@ const data = {
       plan: "Free",
     },
   ],
-  navMain: [
+  navTeam: [
     {
-      title: "Playground",
-      url: "#",
+      title: "Members",
+      url: "/dashboard/members",
       icon: SquareTerminal,
       isActive: true,
       items: [
@@ -137,7 +129,7 @@ const data = {
       ],
     },
   ],
-  projects: [
+  other: [
     {
       name: "Design Engineering",
       url: "#",
@@ -154,22 +146,26 @@ const data = {
       icon: Map,
     },
   ],
+};
+
+interface Props extends React.ComponentProps<typeof Sidebar> {
+  user: User;
 }
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({ user, ...props }: Props) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <TeamSwitcher teams={data.teams} />
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
+        <NavTeam items={data.navTeam} />
+        {/*<NavProjects projects={data.other} />*/}
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={user} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
-  )
+  );
 }
