@@ -1,26 +1,35 @@
+import { AppSidebar } from "@/components/app-sidebar";
+import { User } from "@/components/auth/auth";
 import { Button } from "@/components/ui/button";
 import {
   Card,
-  CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
+  CardDescription,
+  CardContent,
 } from "@/components/ui/card";
-import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { FieldGroup, FieldLabel, Field } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
-import { registerFn } from "@/server/auth";
+import {
+  SidebarProvider,
+  SidebarInset,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
+import { logoutFn } from "@/server/auth";
+import { Separator } from "@radix-ui/react-separator";
 import { revalidateLogic, useForm } from "@tanstack/react-form";
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { GalleryVerticalEnd } from "lucide-react";
-import { z } from "zod";
+import z from "zod";
 
-export const Route = createFileRoute("/register")({
-  component: Register,
+export const Route = createFileRoute("/_authed/account")({
+  component: AccountPage,
 });
 
 const schema = z.object({
+  avatar: z
+    .string()
+    .min(2, { message: "Avatar must be at least 2 characters long" }),
   name: z
     .string()
     .min(2, { message: "Name must be at least 2 characters long" }),
@@ -30,13 +39,22 @@ const schema = z.object({
     .min(6, { message: "Password must be at least 6 characters long" }),
 });
 
-function Register() {
-  const register = useServerFn(registerFn);
+function AccountPage() {
+  const logout = useServerFn(logoutFn);
+
+  const { user } = Route.useRouteContext();
+
+  // TODO: Data to domain user
+  const userCopy: User = {
+    ...user,
+    id: user.id.toString(),
+  };
 
   const form = useForm({
     defaultValues: {
-      name: "",
-      email: "",
+      avatar: "https://github.com/shadcn.png",
+      name: user.name,
+      email: user.email,
       password: "",
     },
     validationLogic: revalidateLogic(),
@@ -44,9 +62,10 @@ function Register() {
       onDynamic: schema,
     },
     onSubmit: async ({ value }) => {
-      await register({
+      await updateUser({
         data: {
-          name: value.name,
+          avatar: value.avatar,
+          name: value.email,
           email: value.email,
           password: value.password,
         },
@@ -55,19 +74,23 @@ function Register() {
   });
 
   return (
-    <div className="bg-muted flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
-      <div className="flex w-full max-w-sm flex-col gap-6">
-        <a href="#" className="flex items-center gap-2 self-center font-medium">
-          <div className="bg-primary text-primary-foreground flex size-6 items-center justify-center rounded-md">
-            <GalleryVerticalEnd className="size-4" />
+    <SidebarProvider>
+      <AppSidebar user={userCopy} logout={logout} />
+      <SidebarInset>
+        <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
+          <div className="flex items-center gap-2 px-4">
+            <SidebarTrigger className="-ml-1" />
+            <Separator
+              orientation="vertical"
+              className="mr-2 data-[orientation=vertical]:h-4"
+            />
           </div>
-          monii
-        </a>
-        <div className={cn("flex flex-col gap-6")}>
+        </header>
+        <div className="m-32">
           <Card>
             <CardHeader className="text-center">
-              <CardTitle className="text-xl">Welcome</CardTitle>
-              <CardDescription>Register now to get started.</CardDescription>
+              <CardTitle className="text-xl">Account</CardTitle>
+              <CardDescription>Here is your information.</CardDescription>
             </CardHeader>
 
             <CardContent>
@@ -79,6 +102,25 @@ function Register() {
                 }}
               >
                 <FieldGroup>
+                  <form.Field
+                    name="avatar"
+                    children={(field) => {
+                      return (
+                        <Field>
+                          <FieldLabel htmlFor="avatar">Avatar</FieldLabel>
+                          <Input
+                            id="avatar"
+                            name={field.name}
+                            value={field.state.value}
+                            onBlur={field.handleBlur}
+                            onChange={(e) => field.handleChange(e.target.value)}
+                            type=""
+                            placeholder="https://avatar.com"
+                          />
+                        </Field>
+                      );
+                    }}
+                  />
                   <form.Field
                     name="name"
                     children={(field) => {
@@ -93,7 +135,6 @@ function Register() {
                             onChange={(e) => field.handleChange(e.target.value)}
                             type="text"
                             placeholder="Jane Doe"
-                            required
                           />
                         </Field>
                       );
@@ -113,7 +154,6 @@ function Register() {
                             onChange={(e) => field.handleChange(e.target.value)}
                             type="email"
                             placeholder="jane.doe@example.com"
-                            required
                           />
                         </Field>
                       );
@@ -133,21 +173,21 @@ function Register() {
                             onChange={(e) => field.handleChange(e.target.value)}
                             type="password"
                             placeholder="••••••••••••••"
-                            required
                           />
                         </Field>
                       );
                     }}
                   />
+
                   <Field>
-                    <Button type="submit">{"Register"}</Button>
+                    <Button type="submit">Save changes</Button>
                   </Field>
                 </FieldGroup>
               </form>
             </CardContent>
           </Card>
         </div>
-      </div>
-    </div>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }

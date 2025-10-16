@@ -24,6 +24,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { User } from "./auth/auth";
+import { Link } from "@tanstack/react-router";
 
 interface Props {
   user: User;
@@ -88,10 +89,12 @@ export function NavUser({ user, logout }: Props) {
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <BadgeCheck />
-                Account
-              </DropdownMenuItem>
+              <Link to="/account">
+                <DropdownMenuItem>
+                  <BadgeCheck />
+                  Account
+                </DropdownMenuItem>
+              </Link>
               <DropdownMenuItem disabled>
                 <CreditCard />
                 Billing

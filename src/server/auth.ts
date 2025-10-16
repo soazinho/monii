@@ -1,90 +1,124 @@
-import bcrypt from 'bcryptjs'
-import { useAppSession } from '@/lib/session';
-import { redirect } from '@tanstack/react-router';
-import { createServerFn } from '@tanstack/react-start';
-import { z } from 'zod';
-import { db } from '@/db/db';
-import { users } from '@/db/schema';
+import bcrypt from "bcryptjs";
+import { useAppSession } from "@/lib/session";
+import { redirect } from "@tanstack/react-router";
+import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
+import { db } from "@/db/db";
+import { users } from "@/db/schema";
+import { eq } from "drizzle-orm/sql/expressions/conditions";
+
+const updateUserSchema = z.object({
+  avatar: z.string().min(2).max(100),
+  name: z.string().min(2).max(100),
+  email: z.email().max(255),
+  password: z.string().min(6).max(100),
+});
 
 const registerSchema = z.object({
   name: z.string().min(2).max(100),
   email: z.email().max(255),
   password: z.string().min(6).max(100),
-})
-  
+});
+
 const loginSchema = z.object({
   email: z.email().max(255),
   password: z.string().min(6).max(100),
-})
+});
 
-export const registerFn = createServerFn({ method: 'POST' })
+export const updateUserFn = createServerFn({ method: "POST" })
+  .inputValidator(updateUserSchema)
+  .handler(async ({ data }) => {
+    const existingUser = await db.query.users.findFirst({
+      where: (t, { eq }) => eq(t.email, data.email),
+    });
+    if (!existingUser) {
+      return { error: "Invalid credentials" };
+    }
+
+    const newHashedPassword = await bcrypt.hash(data.password, 12);
+
+    await db
+      .update(users)
+      .set({
+        avatar: data.avatar,
+        email: data.email,
+        name: data.name,
+        hashedPassword: newHashedPassword,
+      })
+      .where(eq(users.email, data.email));
+
+    const session = await useAppSession();
+    await session.update({ email: data.email });
+  });
+
+export const registerFn = createServerFn({ method: "POST" })
   .inputValidator(registerSchema)
   .handler(async ({ data }) => {
     const existingUser = await db.query.users.findFirst({
       where: (t, { eq }) => eq(t.email, data.email),
-    })  
+    });
     if (existingUser) {
-      return { error: 'User already exists' }
+      return { error: "User already exists" };
     }
 
-    const hashedPassword = await bcrypt.hash(data.password, 12)
+    const hashedPassword = await bcrypt.hash(data.password, 12);
 
     await db.insert(users).values({
       name: data.name,
       email: data.email,
       hashedPassword,
-    })
+    });
 
-    const session = await useAppSession()
-    await session.update({ email: data.email })
+    const session = await useAppSession();
+    await session.update({ email: data.email });
 
-    throw redirect({ to: '/login' })
-  })
+    throw redirect({ to: "/login" });
+  });
 
-export const loginFn = createServerFn({ method: 'POST' })
+export const loginFn = createServerFn({ method: "POST" })
   .inputValidator(loginSchema)
   .handler(async ({ data }) => {
-    const user = await authenticateUser(data.email, data.password)
+    const user = await authenticateUser(data.email, data.password);
     if (!user) {
-      return { error: 'Invalid credentials' }
+      return { error: "Invalid credentials" };
     }
 
-    const session = await useAppSession()
+    const session = await useAppSession();
     await session.update({
       email: user.email,
-    })
+    });
 
-    throw redirect({ to: '/dashboard' })
-  })
+    throw redirect({ to: "/dashboard" });
+  });
 
-export const logoutFn = createServerFn({ method: 'POST' }).handler(async () => {
-  const session = await useAppSession()
-  await session.clear()
-  throw redirect({ to: '/' })
-})
+export const logoutFn = createServerFn({ method: "POST" }).handler(async () => {
+  const session = await useAppSession();
+  await session.clear();
+  throw redirect({ to: "/" });
+});
 
-export const getCurrentUserFn = createServerFn({ method: 'GET' }).handler(
+export const getCurrentUserFn = createServerFn({ method: "GET" }).handler(
   async () => {
-    const session = await useAppSession()
-    const email = session.data?.email
+    const session = await useAppSession();
+    const email = session.data?.email;
     if (!email) {
-      return null
+      return null;
     }
 
     const user = await db.query.users.findFirst({
       where: (t, { eq }) => eq(t.email, email),
-    })
-    if (!user) return null
-    return user
+    });
+    if (!user) return null;
+    return user;
   },
-)
+);
 
 async function authenticateUser(email: string, password: string) {
-    const user = await db.query.users.findFirst({
-      where: (t, { eq }) => eq(t.email, email),
-    })  
-    if (!user) return null
+  const user = await db.query.users.findFirst({
+    where: (t, { eq }) => eq(t.email, email),
+  });
+  if (!user) return null;
 
-  const isValid = await bcrypt.compare(password, user.hashedPassword)
-  return isValid ? user : null
+  const isValid = await bcrypt.compare(password, user.hashedPassword);
+  return isValid ? user : null;
 }

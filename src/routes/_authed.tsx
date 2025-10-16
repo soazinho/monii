@@ -1,17 +1,17 @@
-import { getCurrentUserFn } from '@/server/auth'
-import { createFileRoute, redirect } from '@tanstack/react-router'
+import { getCurrentUserFn } from "@/server/auth";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
-export const Route = createFileRoute('/_authed')({
+export const Route = createFileRoute("/_authed")({
   beforeLoad: async ({ location }) => {
-    const user = await getCurrentUserFn()
+    const user = await getCurrentUserFn();
 
     if (!user) {
       throw redirect({
-        to: '/login',
+        to: "/login",
         search: { redirect: location.href },
-      })
+      });
     }
 
-    return { user }
+    return { user };
   },
-})
+});
