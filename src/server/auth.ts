@@ -49,6 +49,8 @@ export const updateUserFn = createServerFn({ method: "POST" })
 
     const session = await useAppSession();
     await session.update({ email: data.email });
+
+    return { success: true };
   });
 
 export const registerFn = createServerFn({ method: "POST" })
